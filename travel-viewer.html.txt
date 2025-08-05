@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>European Travel Explorer</title>
+  <script src="https://openseadragon.github.io/openseadragon/openseadragon.min.js"></script>
+  <style>
+    body {
+      display: flex;
+      font-family: 'Georgia', serif;
+      margin: 0;
+    }
+    #viewer {
+      flex: 2;
+      height: 600px;
+    }
+    #infoPanel {
+      flex: 1;
+      padding: 1em;
+      background: #f9f3e3;
+      border-left: 2px solid #ccc;
+    }
+    .overlay {
+      border: 2px solid red;
+      background: rgba(255, 0, 0, 0.2);
+      cursor: pointer;
+    }
+    img {
+      width: 100%;
+      margin-bottom: 1em;
+      border-radius: 4px;
+    }
+    a {
+      color: #0077cc;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div id="viewer"></div>
+  <div id="infoPanel">
+    <h2 id="placeTitle">Select a landmark</h2>
+    <p id="placeInfo">Click a red box to learn about a place.</p>
+  </div>
+
+  <script>
+    const viewer = OpenSeadragon({
+      id: "viewer",
+      prefixUrl: "https://openseadragon.github.io/openseadragon/images/",
+      tileSources: "https://openseadragon.github.io/example-images/highsmith/highsmith.dzi"
+    });
+
+    const highlights = [
+      {
+        title: "Prague – Charles Bridge",
+        info: "A beautiful medieval bridge. Best visited at sunrise for quiet views.",
+        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Charles_Bridge_Prague_Czech_Republic.jpg/640px-Charles_Bridge_Prague_Czech_Republic.jpg",
+        link: "https://en.wikipedia.org/wiki/Charles_Bridge",
+        coords: { x: 0.2, y: 0.3, width: 0.1, height: 0.1 }
+      },
+      {
+        title: "Budapest – Fisherman’s Bastion",
+        info: "Offers panoramic views of the Danube and Parliament. Free entry zones available.",
+        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Fisherman%27s_Bastion_Budapest_Hungary.jpg/640px-Fisherman%27s_Bastion_Budapest_Hungary.jpg",
+        link: "https://en.wikipedia.org/wiki/Fisherman%27s_Bastion",
+        coords: { x: 0.5, y: 0.4, width: 0.1, height: 0.1 }
+      }
+    ];
+
+    viewer.addHandler('open', () => {
+      highlights.forEach(({ title, info, image, link, coords }) => {
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.title = title;
+        overlay.addEventListener("click", () => {
+          document.getElementById("placeTitle").textContent = title;
+          document.getElementById("placeInfo").innerHTML = `
+            <img src="${image}" alt="${title}">
+            <p>${info}</p>
+            <a href="${link}" target="_blank">More about ${title}</a>
+          `;
+        });
+        viewer.addOverlay({
+          element: overlay,
+          location: viewer.viewport.imageToViewportRectangle(
+            coords.x, coords.y, coords.width, coords.height
+          )
+        });
+      });
+    });
+  </script>
+</body>
+</html>
